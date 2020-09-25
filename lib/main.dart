@@ -1,3 +1,4 @@
+import 'package:fast_qr_reader_view_example/pollution.dart';
 import 'package:fast_qr_reader_view_example/product.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -7,6 +8,10 @@ import 'package:airplane_mode_detection/airplane_mode_detection.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'airQualityProvider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'airQualityProvider.dart';
+import 'pollution.dart';
+
 
 List<CameraDescription> cameras;
 Timer timer;
@@ -39,31 +44,41 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   AnimationController animationController;
   int _airplane = 0;
 
-  Position _currentPosition;
-  String _currentAddress;
- // final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
+   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
+  AirQuality airQuality;
+  String lat;
+  String long;
+
+  _getCurrentLocation() {
+    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+    geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      print(position);
+      setState(() {
+        lat=position.latitude.toString();
+        long=position.longitude.toString();
+      });
+      getAirQuality(lat, long);
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
 
   @override
   void initState() {
-//    geolocator
-//        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
-//        .then((Position position) {
-//      setState(() {
-//        _currentPosition = position;
-//      });
-//    });
-    //String lat = _currentPosition.latitude.toString();
-    //String long = _currentPosition.longitude.toString();
-   // print(_currentPosition);
-    //getAirQuality("30", "50");
+    _getCurrentLocation();
+
+    print(".........");
+
+
     timer = Timer.periodic(
         Duration(seconds: 10), (Timer t) => detectAirplaneMode());
     super.initState();
 
-//    getPositionStream().listen((position) {
-//      var speedInMps = position.speed;
-//      print(speedInMps);// this is your speed
-//    });
     animationController = new AnimationController(
       vsync: this,
       duration: new Duration(seconds: 3),
@@ -89,6 +104,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   int flag = 0;
 
+
+
   Future<String> detectAirplaneMode() async {
     String state = await AirplaneModeDetection.detectAirplaneMode();
     print(state);
@@ -110,6 +127,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     }
   }
 
+
   @override
   void dispose() {
     timer?.cancel();
@@ -125,8 +143,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return new MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: new Scaffold(
-        key: _scaffoldKey,
+      home: ChangeNotifierProvider<AirState>(
+        create: (context) => AirState(),
+        child: Scaffold(
+          key: _scaffoldKey,
 //        floatingActionButton: FloatingActionButton(
 //          child: new Icon(Icons.check),
 //          onPressed: () {
@@ -134,116 +154,123 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 //                "Just proving you can put anything on top of the scanner");
 //          },
 //        ),
-        body: Stack(
-          children: <Widget>[
-            Stack(
-              children: [
-                Container(
-                  color: Color.fromRGBO(10, 10, 10, 1),
-                  child: Center(child: _cameraPreviewWidget()),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 630,
-                    ),
-                    Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Color.fromRGBO(10, 10, 10, 1),
-                          boxShadow: [
-                            BoxShadow(
-                              spreadRadius: 60,
-                              blurRadius: 40,
-                              color: Color.fromRGBO(10, 10, 10, 1),
-                            )
-                          ]),
-                      height: double.infinity,
-                      width: 60,
-                    ),
-                    Spacer(),
-                  ],
-                ),
-              ],
-            ),
-            Center(
-              child: Stack(
-                children: <Widget>[
-                  SizedBox(
-                    height: 300.0,
-                    width: 300.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white12,
-                          border:
-                              Border.all(color: Colors.white54, width: 2.0)),
-                    ),
+          body: Stack(
+            children: <Widget>[
+              Stack(
+                children: [
+                  Container(
+                    color: Color.fromRGBO(10, 10, 10, 1),
+                    child: Center(child: _cameraPreviewWidget()),
                   ),
-                  Positioned(
-                    top: verticalPosition.value,
-                    child: Container(
-                      width: 300.0,
-                      height: 2.0,
-                      color: Colors.white54,
-                    ),
-                  )
+                  Row(
+                    children: [
+                      Container(
+                        width: 630,
+                      ),
+                      Spacer(),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Color.fromRGBO(10, 10, 10, 1),
+                            boxShadow: [
+                              BoxShadow(
+                                spreadRadius: 60,
+                                blurRadius: 40,
+                                color: Color.fromRGBO(10, 10, 10, 1),
+                              )
+                            ]),
+                        height: double.infinity,
+                        width: 60,
+                      ),
+                      Spacer(),
+                    ],
+                  ),
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 18.0, top: 25),
-                  child: AnimatedOpacity(
-                    opacity: _airplane.roundToDouble(),
-                    duration: Duration(seconds: 1),
-                    child: Align(
-                      alignment: Alignment.topLeft,
+              Center(
+                child: Stack(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 300.0,
+                      width: 300.0,
                       child: Container(
-                        child: Center(
-                          child: Text("Airplane Mode On",
-                              style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.black87)),
-                        ),
-                        width: 200,
-                        height: 50,
                         decoration: BoxDecoration(
-                          color: Color.fromRGBO(255, 255, 255, 0.85),
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                            color: Colors.white12,
+                            border:
+                                Border.all(color: Colors.white54, width: 2.0)),
+                      ),
+                    ),
+                    Positioned(
+                      top: verticalPosition.value,
+                      child: Container(
+                        width: 300.0,
+                        height: 2.0,
+                        color: Colors.white54,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 18.0, top: 25),
+                    child: AnimatedOpacity(
+                      opacity: _airplane.roundToDouble(),
+                      duration: Duration(seconds: 1),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Container(
+                          child: Center(
+                            child: Text("Airplane Mode On",
+                                style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.black87)),
+                          ),
+                          width: 200,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 0.85),
+                            borderRadius: BorderRadius.all(Radius.circular(30)),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: _airplane.roundToDouble(),
-                  duration: Duration(seconds: 1),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 18.0, top: 10),
-                    child: Container(
-                        width: 200, child: Image.asset("assets/flight.png")),
+                  AnimatedOpacity(
+                    opacity: _airplane.roundToDouble(),
+                    duration: Duration(seconds: 1),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18.0, top: 10),
+                      child: Container(
+                          width: 200, child: Image.asset("assets/flight.png")),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AnimatedOpacity(
-                opacity: _isVisible.roundToDouble(),
-                duration: Duration(seconds: 1),
-                child: Align(
-                    alignment: Alignment.topRight,
-                    child: Product(
-                        isbn,
-                        2.4,
-                        "https://i.ibb.co/6XjvnSV/kisspng-chocolate-bar-cadbury-dairy-milk-nut-dairy-5ad037c29ecdd5-1.png",
-                        "CadburyWN-02")),
+                ],
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: AnimatedOpacity(
+                  opacity: _isVisible.roundToDouble(),
+                  duration: Duration(seconds: 1),
+                  child: Align(
+                      alignment: Alignment.topRight,
+                      child: Product(
+                          isbn,
+                          2.4,
+                          "https://i.ibb.co/6XjvnSV/kisspng-chocolate-bar-cadbury-dairy-milk-nut-dairy-5ad037c29ecdd5-1.png",
+                          "CadburyWN-02")),
+                ),
+              ),
+              Align(alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: PollutionShow(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -318,3 +345,4 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .showSnackBar(new SnackBar(content: new Text(message)));
   }
 }
+
