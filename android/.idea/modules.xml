@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1673707915/airplane_mode_detection.iml" filepath="$PROJECT_DIR$/.idea/modules/1673707915/airplane_mode_detection.iml" group="android/airplane_mode_detection" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" group="android" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="android/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/216162859/fast_qr_reader_view.iml" filepath="$PROJECT_DIR$/.idea/modules/216162859/fast_qr_reader_view.iml" group="android/fast_qr_reader_view" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-961040724/fluttertoast.iml" filepath="$PROJECT_DIR$/.idea/modules/-961040724/fluttertoast.iml" group="android/fluttertoast" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1814208048/geolocator.iml" filepath="$PROJECT_DIR$/.idea/modules/1814208048/geolocator.iml" group="android/geolocator" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-398459584/google_api_availability.iml" filepath="$PROJECT_DIR$/.idea/modules/-398459584/google_api_availability.iml" group="android/google_api_availability" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1045423805/location_permissions.iml" filepath="$PROJECT_DIR$/.idea/modules/1045423805/location_permissions.iml" group="android/location_permissions" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1371839985/path_provider.iml" filepath="$PROJECT_DIR$/.idea/modules/1371839985/path_provider.iml" group="android/path_provider" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1119158588/path_provider_linux.iml" filepath="$PROJECT_DIR$/.idea/modules/1119158588/path_provider_linux.iml" group="android/path_provider_linux" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-194550784/path_provider_macos.iml" filepath="$PROJECT_DIR$/.idea/modules/-194550784/path_provider_macos.iml" group="android/path_provider_macos" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-2016998451/path_provider_windows.iml" filepath="$PROJECT_DIR$/.idea/modules/-2016998451/path_provider_windows.iml" group="android/path_provider_windows" />
+    </modules>
+  </component>
+</project>
