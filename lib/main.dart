@@ -11,6 +11,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'airQualityProvider.dart';
 import 'pollution.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart' as parser;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 
 List<CameraDescription> cameras;
@@ -50,6 +54,32 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   AirQuality airQuality;
   String lat;
   String long;
+  String imgUrl;
+  bool _loading=true;
+  String txt="Finding Product";
+
+
+  void fetchProduct(String barcode) async {
+    var url = 'https://www.barcodespider.com/'+barcode;
+    await http.get(url).then((response) {
+
+      dom.Document document = parser.parse(response.body);
+      final mainClass = document.getElementsByClassName('thumb-image');
+      String url=mainClass[0].getElementsByTagName("img")[0].attributes['src'];
+
+      dom.Document doc = parser.parse(response.body);
+      final main = document.getElementsByClassName('detailtitle');
+      String text=main[0].getElementsByTagName("h2")[0].innerHtml.toString();
+      print(txt);
+      print("xxxxxxxxxxxxx");
+      setState(() {
+        imgUrl=url;
+        _loading=false;
+        txt=text;
+        print("here.........");
+      });
+    });
+  }
 
   _getCurrentLocation() {
     final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
@@ -103,8 +133,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   int flag = 0;
-
-
 
   Future<String> detectAirplaneMode() async {
     String state = await AirplaneModeDetection.detectAirplaneMode();
@@ -259,8 +287,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                       child: Product(
                           isbn,
                           2.4,
-                          "https://i.ibb.co/6XjvnSV/kisspng-chocolate-bar-cadbury-dairy-milk-nut-dairy-5ad037c29ecdd5-1.png",
-                          "CadburyWN-02")),
+                          imgUrl,
+                          txt,_loading)),
                 ),
               ),
               Align(alignment: Alignment.bottomLeft,
@@ -299,12 +327,17 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   void onCodeRead(dynamic value) {
     setState(() {
+      txt="Finding Product";
+      _loading=true;
+    });
+    fetchProduct(value.toString());
+    setState(() {
       isbn = value.toString();
       _isVisible = 1;
     });
     // ... do something
     // wait 5 seconds then start scanning again.
-    new Future.delayed(const Duration(seconds: 2), controller.startScanning);
+    new Future.delayed(const Duration(seconds: 8), controller.startScanning);
     Future.delayed(const Duration(seconds: 8), () {
       setState(() {
         _isVisible = 0;
