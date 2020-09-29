@@ -15,7 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as parser;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
+import 'package:flutter_appavailability/flutter_appavailability.dart';
 
 List<CameraDescription> cameras;
 Timer timer;
@@ -48,34 +48,32 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   AnimationController animationController;
   int _airplane = 0;
 
-
-   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
 
   AirQuality airQuality;
   String lat;
   String long;
   String imgUrl;
-  bool _loading=true;
-  String txt="Finding Product";
-
+  bool _loading = true;
+  String txt = "Finding Product";
 
   void fetchProduct(String barcode) async {
-    var url = 'https://www.barcodespider.com/'+barcode;
+    var url = 'https://www.barcodespider.com/' + barcode;
     await http.get(url).then((response) {
-
       dom.Document document = parser.parse(response.body);
       final mainClass = document.getElementsByClassName('thumb-image');
-      String url=mainClass[0].getElementsByTagName("img")[0].attributes['src'];
+      String url =
+          mainClass[0].getElementsByTagName("img")[0].attributes['src'];
 
       dom.Document doc = parser.parse(response.body);
       final main = document.getElementsByClassName('detailtitle');
-      String text=main[0].getElementsByTagName("h2")[0].innerHtml.toString();
+      String text = main[0].getElementsByTagName("h2")[0].innerHtml.toString();
       print(txt);
       print("xxxxxxxxxxxxx");
       setState(() {
-        imgUrl=url;
-        _loading=false;
-        txt=text;
+        imgUrl = url;
+        _loading = false;
+        txt = text;
         print("here.........");
       });
     });
@@ -88,8 +86,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .then((Position position) {
       print(position);
       setState(() {
-        lat=position.latitude.toString();
-        long=position.longitude.toString();
+        lat = position.latitude.toString();
+        long = position.longitude.toString();
       });
       getAirQuality(lat, long);
     }).catchError((e) {
@@ -97,13 +95,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     });
   }
 
-
   @override
   void initState() {
     _getCurrentLocation();
 
     print(".........");
-
 
     timer = Timer.periodic(
         Duration(seconds: 10), (Timer t) => detectAirplaneMode());
@@ -154,7 +150,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       });
     }
   }
-
 
   @override
   void dispose() {
@@ -266,13 +261,37 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  AnimatedOpacity(
-                    opacity: _airplane.roundToDouble(),
-                    duration: Duration(seconds: 1),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 18.0, top: 10),
-                      child: Container(
-                          width: 200, child: Image.asset("assets/flight.png")),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 18.0, top: 5),
+                    child: AnimatedOpacity(
+                      opacity: _airplane.roundToDouble(),
+                      duration: Duration(seconds: 1),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            
+                            AppAvailability.launchApp("com.codingwithflutter.flightco2calculatorflutterexample");
+                          },
+                          child: Container(
+                            child: Center(
+                              child: Text(
+                                  "Tap to calculate \nyour flight footprint",
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: Colors.black87)),
+                            ),
+                            width: 200,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(255, 255, 255, 0.85),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(30)),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -284,14 +303,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                   duration: Duration(seconds: 1),
                   child: Align(
                       alignment: Alignment.topRight,
-                      child: Product(
-                          isbn,
-                          2.4,
-                          imgUrl,
-                          txt,_loading)),
+                      child: Product(isbn, 2.4, imgUrl, txt, _loading)),
                 ),
               ),
-              Align(alignment: Alignment.bottomLeft,
+              Align(
+                alignment: Alignment.bottomLeft,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: PollutionShow(),
@@ -327,8 +343,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   void onCodeRead(dynamic value) {
     setState(() {
-      txt="Finding Product";
-      _loading=true;
+      txt = "Finding Product";
+      _loading = true;
     });
     fetchProduct(value.toString());
     setState(() {
@@ -378,4 +394,3 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .showSnackBar(new SnackBar(content: new Text(message)));
   }
 }
-
